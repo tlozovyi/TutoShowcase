@@ -40,6 +40,7 @@ public final class TutoShowcase {
     }
 
     public static final float DEFAULT_ADDITIONAL_RADIUS_RATIO = 1.5f;
+    public static final int DEFAULT_VIEW_PADDING = 40;
     private static final String SHARED_TUTO = "SHARED_TUTO";
     private FrameLayout container;
     private TutoView tutoView;
@@ -358,15 +359,27 @@ public final class TutoShowcase {
             tutoShowcase.tutoView.postInvalidate();
         }
 
-        public ShapeViewActionsEditor addRoundRect() {
-            return addRoundRect(DEFAULT_ADDITIONAL_RADIUS_RATIO);
+        public ShapeViewActionsEditor addRect() {
+            return addRect(DEFAULT_ADDITIONAL_RADIUS_RATIO, false, DEFAULT_VIEW_PADDING);
         }
 
-        public ShapeViewActionsEditor addRoundRect(final float additionalRadiusRatio) {
+        public ShapeViewActionsEditor addRect(int padding) {
+            return addRect(DEFAULT_ADDITIONAL_RADIUS_RATIO, false, padding);
+        }
+
+        public ShapeViewActionsEditor addRoundRect() {
+            return addRoundRect(DEFAULT_ADDITIONAL_RADIUS_RATIO, DEFAULT_VIEW_PADDING);
+        }
+
+        public ShapeViewActionsEditor addRoundRect(final float additionalRadiusRatio, int padding) {
+            return addRect(additionalRadiusRatio, true, padding);
+        }
+
+        private ShapeViewActionsEditor addRect(final float additionalRadiusRatio, final boolean isRounded, final int padding) {
             view.getViewTreeObserver().addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
                 @Override
                 public boolean onPreDraw() {
-                    addRoundRectOnView(additionalRadiusRatio);
+                    addRoundRectOnView(additionalRadiusRatio, isRounded, padding);
                     view.getViewTreeObserver().removeOnPreDrawListener(this);
                     return false;
                 }
@@ -390,18 +403,16 @@ public final class TutoShowcase {
             return new ShapeViewActionsEditor(this);
         }
 
-        private void addRoundRectOnView(float additionalRadiusRatio) {
+        private void addRoundRectOnView(float additionalRadiusRatio, boolean isRounded, int padding) {
             Rect rect = new Rect();
             view.getGlobalVisibleRect(rect);
-
-            int padding = 40;
 
             final int x = rect.left - padding;
             final int y = rect.top - getStatusBarOffset() - padding;
             final int width = rect.width() + 2 * padding;
             final int height = rect.height() + 2 * padding;
 
-            RoundRect roundRect = new RoundRect(x, y, width, height);
+            RoundRect roundRect = new RoundRect(x, y, width, height, isRounded);
             roundRect.setDisplayBorder(settings.withBorder);
             tutoShowcase.tutoView.addRoundRect(roundRect);
             addClickableView(rect, settings.onClickListener, additionalRadiusRatio);
